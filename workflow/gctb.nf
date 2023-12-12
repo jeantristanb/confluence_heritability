@@ -8,6 +8,8 @@ include {clean_plink} from '../process/plink.nf'
 include {computefreq_plink} from '../process/plink.nf'
 include {shrunkld} from '../process/gctb.nf'
 include {sparceld_aftshrunk} from '../process/gctb.nf'
+include {extract_chrbpld} from '../process/gctb.nf'
+include {merge_info_ld} from '../process/gctb.nf'
 
 workflow build_ld {
    if(params.bfile==""){
@@ -43,11 +45,16 @@ workflow build_ld {
 
 workflow gctb {
   println "other option : "+ params.gctb_otheroption
-  sumstat=channel.fromPath(params.sumstat, checkIfExists:true)
-  if(params.update_rsid!='')rsidfile=channel.fromPath(params.update_rsid, checkIfExists:true)
-  format_sumstat(sumstat.combine(rsidfile).combine(channel.from("${params.output_dir}/sumstat_format")).combine(channel.from(params.output_pat+'.sumstat')))
   listfile_gtc_bin=Channel.fromPath(file(params.gctb_ld_bin, checkIfExists:true).readLines(), checkIfExists:true).collect()
   listfile_gtc_info=Channel.fromPath(file(params.gctb_ld_info, checkIfExists:true).readLines(), checkIfExists:true).collect()
+  sumstat=channel.fromPath(params.sumstat, checkIfExists:true)
+  if(params.update_rsid!='')rsidfile=channel.fromPath(params.update_rsid, checkIfExists:true)
+  else{
+    extract_chrbpld(listfile_gtc_info, channel.from(params.output_pat+'.listpos'))
+    rsidfile=extract_chrbpld.out
+  }
+  format_sumstat(sumstat.combine(rsidfile).combine(channel.from("${params.output_dir}/sumstat_format")).combine(channel.from(params.output_pat+'.sumstat')))
   run_gctb_sumstat(format_sumstat.out, listfile_gtc_bin, listfile_gtc_info, channel.from(params.output_pat))
+  merge_info_ld(listfile_gtc_info, channel.from(params.output_pat+'.info'))
 
 }

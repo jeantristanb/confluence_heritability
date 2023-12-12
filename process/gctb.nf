@@ -1,5 +1,19 @@
 include {strmem} from './utils.nf'
 
+process extract_chrbpld{
+  input :
+    path(listinfo)
+    val(output)
+  output :
+    path(allpos)
+  script :
+    allpos=output+'_chrpbp.pos'
+    tmpinfo=listinfo.join(" ")
+    """
+    cat $tmpinfo|grep -v "Chrom" | awk '{print \$1"\t"\$4"\t"\$2}' >> $allpos
+    """
+}
+
 process format_sumstat{
  input :
     tuple path(sumstat), path(infofile), val(outdir),val(outpat)
@@ -105,6 +119,20 @@ process sparceld_aftshrunk{
   gctb --ldm $head --make-sparse-ldm --chisq 0 --out $outputres
   """
 }
+process merge_info_ld {
+  input :
+     path(info), val(outpat)
+  output :
+    path(allinfo)
+  script :
+    firstinfo=info[0]
+    tmpinfo=info.join(" ")
+    allinfo=outpat+"_all.info"
+    """
+    head -1 $firstinfo  > $allinfo
+    cat $tmpinfo|grep -v "Chrom" > $allinfo
+    """
+}
 /*
 process stat_maf {
   label 'R'
@@ -114,7 +142,7 @@ process stat_maf {
   output :
     path("${output}*")
   """
-
+  
   """
 
 }*/

@@ -45,20 +45,8 @@
 ### ressource 
  * ld using 50kb of 2.3 mb: see [gctb website](https://cnsgenomics.com/software/gctb/#LDmatrices) or [zenodo](https://zenodo.org/records/3375373#.XyFgOS17G8o)
 
-###created file for update rsid :
 
-```
-sumtat=filesumtat
-if [ ! -f allpos ]
-then
-rm -f allpos
-# Chrom              ID     GenPos         PhysPos     A1     A2       A2Freq      Index  WindStart    WindEnd   WindSize       WindWidth          N     SamplVar        LDsum
-for file in  `ls ../ressource/ukb_50k_bigset_2.8M/*.info`
-do
-sed '1d' $file | awk '{print $1"\t"$4"\t"$2}' >> allpos
-done
-fi
-```
+## run gctb to compute heritabilty
 
 ### Created file for matrice
 ```
@@ -66,16 +54,16 @@ ls  ../ressource/ukb_50k_bigset_2.8M/*.bin > list_bin
 ls  ../ressource/ukb_50k_bigset_2.8M/*.info > list_info
 ```
 
-
-### example run pipeline
+### run gctb
 ```
 #ID CHR POS ALT REF AF_ALT beta.ALT SE P Rsq N_case N_control
 hchr=CHR;hbp=POS;ha1=ALT;ha2=REF;hrs=ID;hp=P;hbeta=beta.ALT;hse=SE;hn="N_case,N_control";hfreq=AF_ALT
 #gctb_listld  
-/home/jeantristan/Cancer/BC_gwas/confluence/confluence/pipeline/main.nf  --sumstat $sumstat   --sumstat_head_chr $hchr --sumstat_head_bp $hbp --sumstat_head_a1 $ha1 --sumstat_head_a2 $ha2 --sumstat_head_rs $hrs --sumstat_head_pval $hp --sumstat_head_beta $hbeta --sumstat_head_se $hse --sumstat_head_n $hn --sumstat_head_freq $hfreq  --update_rsid allpos --gctb_ld_bin list_bin --gctb_ld_info list_info -resume -profile slurmSingularity
+confluence_heritability/main.nf  --sumstat $sumstat   --sumstat_head_chr $hchr --sumstat_head_bp $hbp --sumstat_head_a1 $ha1 --sumstat_head_a2 $ha2 --sumstat_head_rs $hrs --sumstat_head_pval $hp --sumstat_head_beta $hbeta --sumstat_head_se $hse --sumstat_head_n $hn --sumstat_head_freq $hfreq   --gctb_ld_bin list_bin --gctb_ld_info list_info -resume -profile slurmSingularity
 ```
 
 ## Run LD using plink file 
+* see ressource (here)[https://github.com/jeantristanb/confluence/tree/main/buildld/afr_1000g]
 build ld used for heritability, bin info, clean SNPs
 * plink option and clean :
  * `bfile` : plink without ext [ "" ]
@@ -94,7 +82,7 @@ build ld used for heritability, bin info, clean SNPs
  * using `bfile` from 1000 Genome vcf hg19 in plink
  * extract individual without relatdness using information
 
-Created file without inbredding
+###Created file without inbredding
 see :  `confluence/buildld/afr_1000g/extract_ind_afr_v2.r`
 
 ```
@@ -117,7 +105,7 @@ ls confluence/buildld/afr_1000g/ASW/*.gz|awk -F "-" '{print $(NF-1)","$0}' >> li
  * no missing data, 2M positions, hwe 0.0001
 
 ```
-nextflow confluence/pipeline/main.nf --model gctb_ld --bfile ~/Data/1000Geno/AllVCF_Genome/1000GPlk/1000Plk   --gctb_keepind $fileind -profile slurmSingularity -resume --plink_geno 0.0 --output_pat afr_ld_2M --output_dir afr_ld_2M  --list_map list_map.csv --memory_gctb "100GB" --plink_hwe 0.0001 --plink_shuffle 2000000
+nextflow confluence_heritability/main.nf --model gctb_ld --bfile ~/Data/1000Geno/AllVCF_Genome/1000GPlk/1000Plk   --gctb_keepind $fileind -profile slurmSingularity -resume --plink_geno 0.0 --output_pat afr_ld_2M --output_dir afr_ld_2M  --list_map list_map.csv --memory_gctb "100GB" --plink_hwe 0.0001 --plink_shuffle 2000000
 ```
 
 
@@ -136,7 +124,7 @@ dx login or dx login --toker
 dx mkdir Aim2_Polygenicity/jeantristan
 
 dx build --nextflow \
-  --repository https://github.com/jeantristanb/confluence \
+  --repository https://github.com/jeantristanb/confluence_heritability \
   --destination Aim2_Polygenicity/jeantristan/heritability
 ```
 
