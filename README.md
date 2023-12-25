@@ -62,7 +62,7 @@ hchr=CHR;hbp=POS;ha1=ALT;ha2=REF;hrs=ID;hp=P;hbeta=beta.ALT;hse=SE;hn="N_case,N_
 confluence_heritability/main.nf  --sumstat $sumstat   --sumstat_head_chr $hchr --sumstat_head_bp $hbp --sumstat_head_a1 $ha1 --sumstat_head_a2 $ha2 --sumstat_head_rs $hrs --sumstat_head_pval $hp --sumstat_head_beta $hbeta --sumstat_head_se $hse --sumstat_head_n $hn --sumstat_head_freq $hfreq   --gctb_ld_bin list_bin --gctb_ld_info list_info -resume -profile slurmSingularity
 ```
 
-## Run LD using plink file 
+## build LD ressourxce using plink file as input
 * see ressource (here)[https://github.com/jeantristanb/confluence/tree/main/buildld/afr_1000g]
 build ld used for heritability, bin info, clean SNPs
 * plink option and clean :
@@ -102,33 +102,48 @@ ls confluence/buildld/afr_1000g/ASW/*.gz|awk -F "-" '{print $(NF-1)","$0}' >> li
 ```
 
 ### run pipeline
- * no missing data, 2M positions, hwe 0.0001
+ * see [data\_test](./data_test/) folder
 
 ```
-nextflow confluence_heritability/main.nf --model gctb_ld --bfile ~/Data/1000Geno/AllVCF_Genome/1000GPlk/1000Plk   --gctb_keepind $fileind -profile slurmSingularity -resume --plink_geno 0.0 --output_pat afr_ld_2M --output_dir afr_ld_2M  --list_map list_map.csv --memory_gctb "100GB" --plink_hwe 0.0001 --plink_shuffle 2000000
+sumstat=$Dirgit/confluence_heritability/data_test/sumstat_1.tsv
+output=testnf
+hchr=CHR;hbp=BP;ha1=A1;ha2=A2;hrs=SNP;hrs=SNP;hp=P;hbeta=BETA;hse=SE;hfreq=MAF;hn=N
+listbin=listbin
+listinfo=listinfo
+
+ls $Dirgit//confluence_heritability/data_test/chr22/*.bin > $listbin
+ls $Dirgit/confluence_heritability/data_test/chr22/*.info > $listinfo
+
+echo "$Dirgit/confluence_heritability/main.nf  --sumstat $sumstat   --sumstat_head_chr $hchr --sumstat_head_bp $hbp --sumstat_head_a1 $ha1 --sumstat_head_a2 $ha2 --sumstat_head_rs $hrs --sumstat_head_pval $hp --sumstat_head_beta $hbeta --sumstat_head_se $hse --sumstat_head_freq $hfreq    --gctb_ld_bin $listbin --gctb_ld_info $listinfo -resume -profile slurmSingularity --memory_gctb "130GB"   --output_dir $output --output_pat $output --sumstat_head_n $hn"
 ```
 
 
 ## ressource :
-*  `interpolate_ld` : script modify  of 
+*  `interpolate_ld` : script modify of TODO
 
-#run on dna-nexus
+# run on dna-nexus
 
 see manual [here](https://documentation.dnanexus.com/user/running-apps-and-workflows/running-nextflow-pipelines)
 
 
 
+## usefull command line
 ```
 #connection
-dx login or dx login --toker
+dx login or dx login --token xxxxx
+#create a directory 
 dx mkdir Aim2_Polygenicity/jeantristan
-
+#what file are in one directory 
+dx ls Aim2_Polygenicity
+```
+### build nextflow
+* command line take 1 to 2 minutes : 
+* when command finish you will received a confirmation emel
+```
+dx mkdir Aim2_Polygenicity/jeantristan
 dx build --nextflow \
   --repository https://github.com/jeantristanb/confluence_heritability \
   --destination Aim2_Polygenicity/jeantristan/heritability
 ```
 
-command line after connexion
-```
-dx ls Aim2_Polygenicity/
-```
+### 

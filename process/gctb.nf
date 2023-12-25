@@ -121,7 +121,8 @@ process sparceld_aftshrunk{
 }
 process merge_info_ld {
   input :
-     path(info), val(outpat)
+     path(info)
+     val(outpat)
   output :
     path(allinfo)
   script :
