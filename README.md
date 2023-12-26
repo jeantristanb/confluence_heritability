@@ -4,8 +4,8 @@
 * profile :
  * slurmSingularity
  * batch
- * ...
- * dna nexus need to test
+ * docker
+ * dnanexus 
 
 ## model 
 * option to defined action of script : `--model` :
@@ -129,24 +129,49 @@ echo "$Dirgit/confluence_heritability/main.nf  --sumstat $sumstat   --sumstat_he
 see manual [here](https://documentation.dnanexus.com/user/running-apps-and-workflows/running-nextflow-pipelines)
 
 
-
-## usefull command line
+## install and prepared folder
 ```
+# install dx command line
+#pip3 install dxpy --user
 #connection
 dx login or dx login --token xxxxx
 #create a directory 
 dx mkdir Aim2_Polygenicity/jeantristan
 #what file are in one directory 
 dx ls Aim2_Polygenicity
+## upload data_test in polygenicity
+#dx upload -r $dirgit/confluence_heritability/data_test --destination ./Aim2_Polygenicity/jeantristan/
 ```
 ### build nextflow
 * command line take 1 to 2 minutes : 
 * when command finish you will received a confirmation emel
+* command line return applet project reference to used on the next steps (otherwise you can find in folder where you have built nextflow applet)
 ```
-dx mkdir Aim2_Polygenicity/jeantristan
-dx build --nextflow \
-  --repository https://github.com/jeantristanb/confluence_heritability \
-  --destination Aim2_Polygenicity/jeantristan/heritability
+dx login 
+#deleted a previous workflow 
+dx rm Aim2_Polygenicity/jeantristan/heritability/confluence_heritability
+# @e build with profile dnanexus contained singularity image
+dx build --nextflow   --repository https://github.com/jeantristanb/confluence_heritability   --destination Aim2_Polygenicity/jeantristan/heritability --profile  dnanexus
 ```
 
-### 
+### run example 
+
+```
+dx login --token XXX
+# variable to run pipeline
+# general direction where are data using project name (found on dnanexus)
+dirdata=dx://project-GYBZ3yj4BzFgB61K7vX9Fq9K:./Aim2_Polygenicity/jeantristan/
+# dir ld with bin file and info
+dirbin=$dirdata/data_test/chr22/
+# sumstat
+sumstat=$dirdata/data_test/sumstat_1.tsv
+#header of sumstat
+hchr=CHR;hbp=BP;ha1=A1;ha2=A2;hrs=SNP;hrs=SNP;hp=P;hbeta=BETA;hse=SE;hfreq=MAF;hn=N
+#Output of result
+outputdir=$dirdata/out_data_test
+# output pattern
+output=test
+
+# run applet, using project id and applet.
+dx run project-GYBZ3yj4BzFgB61K7vX9Fq9K:applet-Gf5Vp4842p63vz54544qyKP2 -i nextflow_pipeline_params="--sumstat $sumstat   --sumstat_head_chr $hchr --sumstat_head_bp $hbp --sumstat_head_a1 $ha1 --sumstat_head_a2 $ha2 --sumstat_head_rs $hrs --sumstat_head_pval $hp --sumstat_head_beta $hbeta --sumstat_head_se $hse --sumstat_head_freq $hfreq    --gctb_ld_bin_dir $dirbin --gctb_ld_info_dir $dirbin -resume  --memory_gctb 130GB   --output_dir $outputdir --output_pat $output --sumstat_head_n $hn"
+```
