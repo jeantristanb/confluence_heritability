@@ -35,8 +35,11 @@
  * `gctb_impute_n` : option to impute n, see `--impute-n` in gctb [default 0]
  * `gctb_exclude_mhc` : option to impute n, see `--exclude-mhc` in gctb [default 0]
  * matrice ld :
-  * `gctb_ld_bin` :  file contained list of ld build with gctb, extension bin
-  * `gctb_ld_info` :  file contained list of info of `gctb_ld_bin` build with gctb, extension bin 
+  * `gctb_ld_bin` :  file contained list of ld build with gctb, extension bin [default : ""]
+  * `gctb_ld_bin_dir` : directory containing bin file [default : "" ]
+ * info ld :
+  * `gctb_ld_info` :  file contained list of info of `gctb_ld_bin` build with gctb, extension bin  [default : ""]
+  * `gctb_ld_info_dir` :   directory containing info file of bin file [default : "" ]
  * model [see more information](https://cnsgenomics.com/software/gctb/#Bayesianalphabet) :
   * `gctb_bayesmod` : model S, R [default S], tested just with S
   * `gctb_hsqinit` : heritability (see option `--hsq` of gctb)

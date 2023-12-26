@@ -45,8 +45,18 @@ workflow build_ld {
 
 workflow gctb {
   println "other option : "+ params.gctb_otheroption
-  listfile_gtc_bin=Channel.fromPath(file(params.gctb_ld_bin, checkIfExists:true).readLines(), checkIfExists:true).collect()
-  listfile_gtc_info=Channel.fromPath(file(params.gctb_ld_info, checkIfExists:true).readLines(), checkIfExists:true).collect()
+  if(params.gctb_ld_bin!="")listfile_gtc_bin=Channel.fromPath(file(params.gctb_ld_bin, checkIfExists:true).readLines(), checkIfExists:true).collect()
+  else if(params.gctb_ld_bin_dir!=''){
+    listfile_gtc_bin=Channel.fromPath(params.gctb_ld_bin_dir+"*.bin").collect()
+  }else{
+   /*error to manage*/
+  }
+  if(params.gctb_ld_bin!="")listfile_gtc_info=Channel.fromPath(file(params.gctb_ld_info, checkIfExists:true).readLines(), checkIfExists:true).collect()
+  else if(params.gctb_ld_bin_dir!=''){
+    listfile_gtc_info=Channel.fromPath(params.gctb_ld_info_dir+"*.info").collect()
+  }  else {
+   /*todo*/ 
+ }
   sumstat=channel.fromPath(params.sumstat, checkIfExists:true)
   if(params.update_rsid!='')rsidfile=channel.fromPath(params.update_rsid, checkIfExists:true)
   else{
